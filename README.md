@@ -6,8 +6,8 @@ If a stream contains both `connect` and `play` commands, an `rtmpdump` translati
 
 Usage:
 ```
-rtmp_debug -i en4
-rtmp_debug -f file.pcap
+rtmp-debug -i en4
+rtmp-debug -f file.pcap
 ```
 
 We use `tcpreader` to get the invidual TCP streams.
