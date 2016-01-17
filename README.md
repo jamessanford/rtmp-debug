@@ -1,10 +1,10 @@
-*Show decoded RTMP commands from pcap wire data.*
+**Show decoded RTMP commands from pcap wire data.**
 
 Only a subset of RTMP is implemented!
 
 If a stream contains both `connect` and `play` commands, an `rtmpdump` translation will be shown.
 
-*Usage:*
+**Usage:**
 ```
 rtmp-debug -i en4
 rtmp-debug -f file.pcap
