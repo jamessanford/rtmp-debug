@@ -34,6 +34,7 @@ func (w *rtmpStreamWrapper) New(net, tcp gopacket.Flow) tcpassembly.Stream {
 		chunkSize: 128,
 	}
 
+	w.outer.Add(1)
 	r := tcpreader.NewReaderStream()
 	go s.parseStream(w.outer, &r)
 	return &r
@@ -57,7 +58,6 @@ type header struct {
 }
 
 func (s *rtmpStream) parseStream(wg *sync.WaitGroup, r io.Reader) {
-	wg.Add(1)
 	defer func() {
 		// Clean up all the chunkstream processors.
 		for _, v := range s.track {
