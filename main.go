@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/golang/glog"
@@ -19,6 +20,19 @@ var (
 	snapLen       = flag.Int("s", 65535, "interface snap length")
 	promiscOff    = flag.Bool("p", false, "disable promiscuous mode")
 )
+
+const usageMessage = `
+Usage: rtmp_debug [-i <interface>] [<bpf expression>]
+
+Display decoded RTMP commands from pcap wire data.
+
+Options:
+`
+
+func usage() {
+	fmt.Fprintf(os.Stderr, usageMessage)
+	flag.PrintDefaults()
+}
 
 func printResults(done chan struct{}, results chan string) {
 	for x := range results {
@@ -49,16 +63,17 @@ func openPcap() (h *pcap.Handle, err error) {
 }
 
 func main() {
+	flag.Usage = usage
 	flag.Parse()
-
-	if len(flag.Args()) > 0 {
-		flag.PrintDefaults()
-		os.Exit(2)
-	}
 
 	pcapfile, err := openPcap()
 	if err != nil {
 		glog.Fatalf("%v", err)
+	}
+
+	bpf := strings.Join(flag.Args(), " ")
+	if err = pcapfile.SetBPFFilter(bpf); err != nil {
+		glog.Fatalf("unable to set BPF: %v", err)
 	}
 
 	// "Pass this stream factory to an tcpassembly.StreamPool ,
