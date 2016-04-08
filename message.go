@@ -51,7 +51,7 @@ func readMap(reader *io.PipeReader) (map[string]interface{}, error) {
 			break
 		}
 		glog.V(2).Infof("MESSAGE OBJECT KEY=%s VALUE=%s", key, value)
-		v[string(key)] = value
+		v[key] = value
 	}
 	return v, nil
 }
@@ -82,7 +82,7 @@ func nextObject(reader *io.PipeReader) (value interface{}, err error) {
 	glog.V(2).Infof("NEXT TYPE IS %v", b[0])
 	if b[0] == amfFloat {
 		var num float64
-		if err := binary.Read(reader, binary.BigEndian, &num); err != nil {
+		if err = binary.Read(reader, binary.BigEndian, &num); err != nil {
 			return nil, err
 		}
 		return num, nil
