@@ -23,7 +23,7 @@ const (
 	amfEnd    = 0x09
 )
 
-func readString(reader *io.PipeReader) (string, error) {
+func readString(reader io.Reader) (string, error) {
 	var lenstr uint16
 	if err := binary.Read(reader, binary.BigEndian, &lenstr); err != nil {
 		return "", fmt.Errorf("read length failed: %v", err)
@@ -35,7 +35,7 @@ func readString(reader *io.PipeReader) (string, error) {
 	return string(foundStr), nil
 }
 
-func readMap(reader *io.PipeReader) (map[string]interface{}, error) {
+func readMap(reader io.Reader) (map[string]interface{}, error) {
 	v := make(map[string]interface{})
 	for {
 		key, err := readString(reader)
@@ -56,7 +56,7 @@ func readMap(reader *io.PipeReader) (map[string]interface{}, error) {
 }
 
 // TODO: This is probably not implemented correctly.
-func readArray(reader *io.PipeReader) ([]interface{}, error) {
+func readArray(reader io.Reader) ([]interface{}, error) {
 	var arrayLen uint32
 	if err := binary.Read(reader, binary.BigEndian, &arrayLen); err != nil {
 		return nil, fmt.Errorf("read length failed: %v", err)
@@ -72,7 +72,7 @@ func readArray(reader *io.PipeReader) ([]interface{}, error) {
 	return array, nil
 }
 
-func nextObject(reader *io.PipeReader) (value interface{}, err error) {
+func nextObject(reader io.Reader) (value interface{}, err error) {
 	b := make([]byte, 1)
 	_, err = io.ReadFull(reader, b)
 	if err != nil {
@@ -107,7 +107,7 @@ func nextObject(reader *io.PipeReader) (value interface{}, err error) {
 	return nil, fmt.Errorf("unknown message object type %v", b[0])
 }
 
-func processNewMessage(reader *io.PipeReader, finalizer *MessageFinalizer, msgTypeID uint8) error {
+func processNewMessage(reader io.Reader, finalizer *MessageFinalizer, msgTypeID uint8) error {
 	defer ioutil.ReadAll(reader)
 
 	var vals []interface{}
