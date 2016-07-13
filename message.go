@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"sync"
 
 	"github.com/golang/glog"
 )
@@ -108,8 +107,7 @@ func nextObject(reader *io.PipeReader) (value interface{}, err error) {
 	return nil, fmt.Errorf("unknown message object type %v", b[0])
 }
 
-func processNewMessage(wg *sync.WaitGroup, finalizer *MessageFinalizer, reader *io.PipeReader, msgTypeID uint8) error {
-	defer wg.Done()
+func processNewMessage(reader *io.PipeReader, finalizer *MessageFinalizer, msgTypeID uint8) error {
 	defer ioutil.ReadAll(reader)
 
 	var vals []interface{}
@@ -119,7 +117,6 @@ func processNewMessage(wg *sync.WaitGroup, finalizer *MessageFinalizer, reader *
 			b := make([]byte, 1)
 			_, err := io.ReadFull(reader, b)
 			if err != nil {
-				glog.Errorf("Message Error: %s", err)
 				return err
 			}
 		}
@@ -129,7 +126,6 @@ func processNewMessage(wg *sync.WaitGroup, finalizer *MessageFinalizer, reader *
 				break
 			}
 			if err != nil {
-				glog.Errorf("Message Error: %s", err)
 				return err
 			}
 			if value != nil {

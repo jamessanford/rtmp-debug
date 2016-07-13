@@ -175,10 +175,7 @@ func (s *rtmpStream) processChunk(buf io.Reader) error {
 	}
 
 	if msg.writer == nil {
-		reader, writer := io.Pipe()
-		msg.writer = writer
-		s.Add(1)
-		go processNewMessage(&s.WaitGroup, s.finalizer, reader, msg.header.TypeID)
+		msg.writer = s.newMessageProcessor(msg.header.TypeID)
 	}
 
 	if headerFormat == 2 {
@@ -252,4 +249,18 @@ func (s *rtmpStream) sendMessagePayload(buf io.Reader, chunkStreamID uint32, msg
 	}
 
 	return nil
+}
+
+func (s *rtmpStream) newMessageProcessor(typeID uint8) *io.PipeWriter {
+	reader, writer := io.Pipe()
+	s.Add(1)
+	go func() {
+		defer s.Done()
+		err := processNewMessage(reader, s.finalizer, typeID)
+		if err != nil {
+			glog.Errorf("Message Error: %v", err)
+		}
+	}()
+
+	return writer
 }
