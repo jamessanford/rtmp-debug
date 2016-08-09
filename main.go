@@ -91,15 +91,25 @@ func main() {
 
 	source := gopacket.NewPacketSource(pcapfile, pcapfile.LinkType())
 
-	for pkt := range source.Packets() {
-		if pkt == nil {
+	var pkt gopacket.Packet
+	for {
+		pkt, err = source.NextPacket()
+		if pkt == nil || err != nil {
 			break
 		}
+
 		if tcp := pkt.Layer(layers.LayerTypeTCP); tcp != nil {
 			asm.AssembleWithTimestamp(
 				pkt.TransportLayer().TransportFlow(),
 				tcp.(*layers.TCP),
 				pkt.Metadata().Timestamp)
+		}
+	}
+
+	if err != nil && !errIsEOF(err) {
+		glog.Errorf("packet: %v", err)
+		if err = pcapfile.Error(); err != nil {
+			glog.Errorf("pcap: %v", err)
 		}
 	}
 
