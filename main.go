@@ -68,12 +68,14 @@ func main() {
 
 	pcapfile, err := openPcap()
 	if err != nil {
-		glog.Fatalf("%v", err)
+		glog.Errorf("%v", err)
+		os.Exit(1)
 	}
 
 	bpf := strings.Join(flag.Args(), " ")
 	if err = pcapfile.SetBPFFilter(bpf); err != nil {
-		glog.Fatalf("unable to set BPF: %v", err)
+		glog.Errorf("unable to set BPF: %v", err)
+		os.Exit(1)
 	}
 
 	// "Pass this stream factory to an tcpassembly.StreamPool ,
