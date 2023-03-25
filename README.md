@@ -17,7 +17,7 @@ rtmp-debug -i en4
 rtmp-debug -f file.pcap
 ```
 
-**Internals:***
+**Internals:**
 
 We use `tcpreader` to get the invidual TCP streams.
 
