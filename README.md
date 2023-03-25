@@ -4,11 +4,20 @@ Only a subset of RTMP is implemented!
 
 If a stream contains both `connect` and `play` commands, an `rtmpdump` translation will be shown.
 
+**Install:**
+
+```
+go install github.com/jamessanford/rtmp-debug@latest
+```
+
 **Usage:**
+
 ```
 rtmp-debug -i en4
 rtmp-debug -f file.pcap
 ```
+
+**Internals:***
 
 We use `tcpreader` to get the invidual TCP streams.
 
